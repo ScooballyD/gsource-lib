@@ -8,8 +8,10 @@ import (
 )
 
 type Game struct {
-	Title string `json:"title"`
-	Href  string `json:"href"`
+	Title    string `json:"title"`
+	Href     string `json:"href"`
+	Image    string `json:"image"`
+	Category string `json:"catagory"`
 }
 
 func AmzScrape() ([]Game, error) {
@@ -34,18 +36,19 @@ func AmzScrape() ([]Game, error) {
 			Array.from(document.querySelector('div[data-a-target="offer-section-offer-cards"]')
                 .querySelectorAll('a'))
                 .map(a => ({
-                    href: a.getAttribute('href'),
-					title: a.querySelector('img.tw-image').getAttribute('alt')
+                    href: "https://gaming.amazon.com" + a.getAttribute('href'),
+					title: a.querySelector('img.tw-image').getAttribute('alt'),
+					image: a.querySelector('img.tw-image').getAttribute('srcset').split(',')[0].trim().replace(' 1x', '')
+
                 }))
 		`, &games),
 	)
 	if err != nil {
 		return nil, err
 	}
-	// for testing
-	//fmt.Println("live scrape finishing")
-	//for _, game := range games {
-	//fmt.Printf("Label: %s, URL: %s\n", game.Title, game.Href)
-	//}
+	for i := range games {
+		games[i].Category = "(prime)"
+	}
+
 	return games, nil
 }
