@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/ScooballyD/gsource-lib/internal/database"
 	"github.com/chromedp/chromedp"
 )
 
@@ -14,7 +15,7 @@ type Game struct {
 	Category string `json:"catagory"`
 }
 
-func AmzScrape() ([]Game, error) {
+func AmzScrape(db *database.Queries) error {
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("no-sandbox", true),
@@ -44,11 +45,23 @@ func AmzScrape() ([]Game, error) {
 		`, &games),
 	)
 	if err != nil {
-		return nil, err
-	}
-	for i := range games {
-		games[i].Category = "(prime)"
+		return err
 	}
 
-	return games, nil
+	for _, game := range games {
+		_, err = db.AddGame(
+			context.Background(),
+			database.AddGameParams{
+				Title:    game.Title,
+				Url:      game.Href,
+				Image:    game.Image,
+				Category: "(prime)",
+			},
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

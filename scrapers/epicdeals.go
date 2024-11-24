@@ -8,6 +8,7 @@ type Deal struct {
 	Discount float64 `json:"discount"`
 }
 
+// work in prog
 func EpicDeals() ([]Deal, error) {
 	response, err := EpicHelper("https://store-site-backend-static-ipv4.ak.epicgames.com/freeGamesPromotions?locale=en-US&country=US&allowCountries=US")
 	if err != nil {

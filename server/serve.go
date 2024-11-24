@@ -1,22 +1,62 @@
 package server
 
 import (
-	"html/template"
+	"fmt"
 	"net/http"
+	"os"
+	"sync/atomic"
+	"time"
 
-	"github.com/ScooballyD/gsource-lib/scrapers"
+	"github.com/ScooballyD/gsource-lib/internal/database"
 )
 
-func StartServer(games []scrapers.Game) {
-	gamesTmp := template.Must(template.ParseFiles("templates/games.html"))
-	discTmp := template.Must(template.ParseFiles("templates/discounts.html"))
+type apiConfig struct {
+	fileserverHits atomic.Int32
+	db             *database.Queries
+	Platform       string
+}
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		gamesTmp.Execute(w, games)
-	})
-	http.HandleFunc("/discounts", func(w http.ResponseWriter, r *http.Request) {
-		discTmp.Execute(w, games)
-	})
+func StartServer(dbQ *database.Queries) {
+	cfg := apiConfig{
+		fileserverHits: atomic.Int32{},
+		db:             dbQ,
+		Platform:       os.Getenv("PLATFORM"),
+	}
+	go Reset()
 
-	http.ListenAndServe(":8080", nil)
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("GET /", cfg.freeHandler)
+	mux.HandleFunc("GET /discounts", cfg.discountsHandler)
+	mux.HandleFunc("POST /admin/reset", cfg.resetHandler)     //will change from GET
+	mux.HandleFunc("GET /admin/collect", cfg.collecttHandler) //will change from GET
+
+	srv := http.Server{
+		Handler: mux,
+		Addr:    ":8080",
+	}
+
+	srv.ListenAndServe()
+}
+
+func Reset() {
+	fmt.Println("starting reset")
+	ticker := time.NewTicker(1 * time.Minute)
+	client := &http.Client{}
+
+	for range ticker.C {
+		fmt.Println("initiating")
+		req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/admin/reset", nil)
+		if err != nil {
+			fmt.Println("unable to make request: ", err)
+			continue
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println("unable to send request: ", err)
+			continue
+		}
+		resp.Body.Close()
+	}
 }
