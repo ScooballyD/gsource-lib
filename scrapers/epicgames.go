@@ -2,11 +2,14 @@ package scrapers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/ScooballyD/gsource-lib/internal/database"
 )
 
 type Response struct {
@@ -123,23 +126,28 @@ func EpicHelper(url string) (Response, error) {
 	return response, nil
 }
 
-func EpicScrape() ([]Game, error) {
+func EpicScrape(db *database.Queries) error {
 	response, err := EpicHelper("https://store-site-backend-static-ipv4.ak.epicgames.com/freeGamesPromotions?locale=en-US&country=US&allowCountries=US")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	var games []Game
 	for _, game := range response.Data.Catalog.SearchStore.Elements {
 		if game.Price.TotalPrice.DiscountPrice == 0 {
-			games = append(games, Game{
-				Title:    game.Title,
-				Href:     "https://store.epicgames.com/en-US/p/" + game.OfferMap[0].PageSlug,
-				Image:    game.KeyImages[0].URL,
-				Category: "(epic)",
-			})
+			_, err = db.AddGame(
+				context.Background(),
+				database.AddGameParams{
+					Title:    game.Title,
+					Url:      "https://store.epicgames.com/en-US/p/" + game.OfferMap[0].PageSlug,
+					Image:    game.KeyImages[0].URL,
+					Category: "(epic)",
+				},
+			)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	return games, nil
+	return nil
 }
