@@ -12,7 +12,10 @@ type Game struct {
 	Title    string `json:"title"`
 	Href     string `json:"href"`
 	Image    string `json:"image"`
-	Category string `json:"catagory"`
+	Category string `json:"category"`
+	Discount string `json:"discount"`
+	OGprice  string `json:"og_price"`
+	Price    string `json:"price"`
 }
 
 func AmzScrape(db *database.Queries) error {

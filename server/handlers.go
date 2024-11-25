@@ -22,11 +22,11 @@ func (cfg *apiConfig) freeHandler(w http.ResponseWriter, r *http.Request) {
 
 // filler for now
 func (cfg *apiConfig) discountsHandler(w http.ResponseWriter, r *http.Request) {
-	games, err := cfg.db.GetGames(r.Context())
+	discounts, err := cfg.db.GetDiscounts(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-	err = template.Must(template.ParseFiles("templates/discounts.html")).Execute(w, games)
+	err = template.Must(template.ParseFiles("templates/discounts.html")).Execute(w, discounts)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -42,6 +42,8 @@ func (cfg *apiConfig) resetHandler(w http.ResponseWriter, r *http.Request) {
 	cfg.db.ResetGames(r.Context())
 	scrapers.AmzScrape(cfg.db)
 	scrapers.EpicScrape(cfg.db)
+	cfg.db.ResetDiscounts(r.Context())
+	scrapers.SteamDeals(cfg.db)
 } //wil change
 
 func (cfg *apiConfig) collecttHandler(w http.ResponseWriter, r *http.Request) {

@@ -45,7 +45,7 @@ func Reset() {
 	client := &http.Client{}
 
 	for range ticker.C {
-		fmt.Println("initiating")
+		//test fmt.Println("initiating")
 		req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/admin/reset", nil)
 		if err != nil {
 			fmt.Println("unable to make request: ", err)
