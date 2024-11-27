@@ -1,9 +1,17 @@
-Game Library
-=============
+# Mythic Deals Archive
 
-A web-hosted library of free and discounted games
+A web app that frequently collects a list of free and discounted games
 
 Gathers games from Amazon Prime, Epic Games, Steam, and GOG
+
+Games on the discounts page can be sorted by price, discount, or title via the filters drop-down 
+
+
+Why?
+----
+
+As an avid enjoyer of video games, I'm always on the lookout for a good deal.  However, frequenting several sites often to find said deals can be a pain.  I found it especially bothersome when I would forget to check in and miss one, especially if it was a free offering!
+To solve this issue I created an application that will gather these games all in one place.  The app gives important details for each game, such as the discount, price, and rating.  Redeeming or buying a game is simple, simply click on the game card and you will be redirected to the marketplace for said game.
 
 
 Requirements
@@ -34,3 +42,12 @@ Clone the repository and install it as an editable package:
   	goose postgres postgres://postgres:@localhost:5432/archive up
    	cd ../..
  	go run .
+
+
+Future Plans
+------------
+- Get results for humble bundle
+- Add user accounts to track owned game
+- Implement the ability to redeem or purchase games without needing to leave the application
+- Add automatic redemption functionality for free games
+- Conglomerate owned games and achievements from various sites allowing collectors and hunters to show off (possibly add a leaderboard)
