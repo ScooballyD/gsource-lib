@@ -22,8 +22,8 @@ func main() {
 	}
 	dbQ := database.New(db)
 
-	//server.ResetGamebp(dbQ)     //Can disable these if restarting program without wiping the database
-	//server.ResetDiscountbp(dbQ) //This one especially can take quite awhile
+	server.ResetGamebp(dbQ)     //Can disable these if restarting program without wiping the database
+	server.ResetDiscountbp(dbQ) //This one especially can take quite awhile
 
 	server.StartServer(dbQ)
 }
