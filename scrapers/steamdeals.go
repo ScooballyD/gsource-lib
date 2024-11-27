@@ -2,15 +2,13 @@ package scrapers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/ScooballyD/gsource-lib/internal/database"
 	"github.com/chromedp/chromedp"
 )
 
-func SteamDeals(db *database.Queries) error {
-	fmt.Println("Getting deals")
+func SteamDeals(db *database.Queries) ([]Game, error) {
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("no-sandbox", true),
@@ -73,7 +71,6 @@ func SteamDeals(db *database.Queries) error {
 		}),
 		chromedp.Evaluate(`
 			(function() {
-				// Now retrieve data
 				const elements = document.querySelector('div._3EdZTDIisUpowxwm6uJ7Iq');
 				if (elements) {
 					return Array.from(elements.querySelectorAll('div.ImpressionTrackedElement'))
@@ -83,34 +80,20 @@ func SteamDeals(db *database.Queries) error {
 							image: div.querySelector('img._2eQ4mkpf4IzUp1e9NnM2Wr').getAttribute('src'),
 							discount: div.querySelector('div.cnkoFkzVCby40gJ0jGGS4').textContent.trim(),
 							og_price: div.querySelector('div._3fFFsvII7Y2KXNLDk_krOW').textContent.trim(),
-							price: div.querySelector('div._3j4dI1yA7cRfCvK8h406OB').textContent.trim()
+							price: div.querySelector('div._3j4dI1yA7cRfCvK8h406OB').textContent.trim(),
+							rating: (div.querySelector('div._2nuoOi5kC2aUI12z85PneA') ? 
+									div.querySelector('div._2nuoOi5kC2aUI12z85PneA').textContent.trim() : 
+									"N/A"),
+							category: "Steam"
 						}));
 				}
-				return []; // Return an empty array
+				return [];
 		})()
 		`, &games),
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	for _, game := range games {
-		_, err = db.AddDiscount(
-			context.Background(),
-			database.AddDiscountParams{
-				Title:    game.Title,
-				Url:      game.Href,
-				Image:    game.Image,
-				Category: "(steam)",
-				Price:    game.Price,
-				OgPrice:  game.OGprice,
-				Discount: game.Discount,
-			},
-		)
-		if err != nil {
-			fmt.Printf("err: %v\n", game.Title) //will change
-		}
-	}
-
-	return nil
+	return games, nil
 }

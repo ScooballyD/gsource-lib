@@ -2,7 +2,6 @@ package scrapers
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -126,28 +125,24 @@ func EpicHelper(url string) (Response, error) {
 	return response, nil
 }
 
-func EpicScrape(db *database.Queries) error {
+func EpicScrape(db *database.Queries) ([]Game, error) {
 	response, err := EpicHelper("https://store-site-backend-static-ipv4.ak.epicgames.com/freeGamesPromotions?locale=en-US&country=US&allowCountries=US")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	for _, game := range response.Data.Catalog.SearchStore.Elements {
-		if game.Price.TotalPrice.DiscountPrice == 0 {
-			_, err = db.AddGame(
-				context.Background(),
-				database.AddGameParams{
-					Title:    game.Title,
-					Url:      "https://store.epicgames.com/en-US/p/" + game.OfferMap[0].PageSlug,
-					Image:    game.KeyImages[0].URL,
-					Category: "(epic)",
-				},
-			)
-			if err != nil {
-				return err
+	var games []Game
+	for _, egame := range response.Data.Catalog.SearchStore.Elements {
+		if egame.Price.TotalPrice.DiscountPrice == 0 {
+			game := Game{
+				Title:    egame.Title,
+				Href:     "https://store.epicgames.com/en-US/p/" + egame.OfferMap[0].PageSlug,
+				Image:    egame.KeyImages[0].URL,
+				Category: "Epic",
 			}
+
+			games = append(games, game)
 		}
 	}
-
-	return nil
+	return games, nil
 }

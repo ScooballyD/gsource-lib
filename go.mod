@@ -8,6 +8,8 @@ require github.com/joho/godotenv v1.5.1
 
 require github.com/lib/pq v1.10.9
 
+require github.com/andybalholm/brotli v1.1.1 // indirect
+
 require (
 	github.com/chromedp/cdproto v0.0.0-20241110205750-a72e6703cd9b // indirect
 	github.com/chromedp/sysutil v1.1.0 // indirect

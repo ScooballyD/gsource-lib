@@ -10,7 +10,7 @@ import (
 )
 
 const addDiscount = `-- name: AddDiscount :one
-INSERT INTO discounts (id, created_at, updated_at, title, url, image, category, price, og_price, discount)
+INSERT INTO discounts (id, created_at, updated_at, title, url, image, category, price, og_price, discount, rating)
 VALUES (
     gen_random_uuid(),
     NOW(),
@@ -21,9 +21,10 @@ VALUES (
     $4,
     $5,
     $6,
-    $7
+    $7,
+    $8
 )
-RETURNING id, created_at, updated_at, title, url, image, category, price, og_price, discount
+RETURNING id, created_at, updated_at, title, url, image, category, price, og_price, discount, rating
 `
 
 type AddDiscountParams struct {
@@ -31,9 +32,10 @@ type AddDiscountParams struct {
 	Url      string
 	Image    string
 	Category string
-	Price    string
+	Price    float64
 	OgPrice  string
 	Discount string
+	Rating   string
 }
 
 func (q *Queries) AddDiscount(ctx context.Context, arg AddDiscountParams) (Discount, error) {
@@ -45,6 +47,7 @@ func (q *Queries) AddDiscount(ctx context.Context, arg AddDiscountParams) (Disco
 		arg.Price,
 		arg.OgPrice,
 		arg.Discount,
+		arg.Rating,
 	)
 	var i Discount
 	err := row.Scan(
@@ -58,13 +61,14 @@ func (q *Queries) AddDiscount(ctx context.Context, arg AddDiscountParams) (Disco
 		&i.Price,
 		&i.OgPrice,
 		&i.Discount,
+		&i.Rating,
 	)
 	return i, err
 }
 
 const getDiscounts = `-- name: GetDiscounts :many
 SELECT title, url AS Href,
-image, category, price, og_price, discount
+image, category, price, og_price, discount, rating
 FROM discounts
 `
 
@@ -73,9 +77,10 @@ type GetDiscountsRow struct {
 	Href     string
 	Image    string
 	Category string
-	Price    string
+	Price    float64
 	OgPrice  string
 	Discount string
+	Rating   string
 }
 
 func (q *Queries) GetDiscounts(ctx context.Context) ([]GetDiscountsRow, error) {
@@ -95,6 +100,157 @@ func (q *Queries) GetDiscounts(ctx context.Context) ([]GetDiscountsRow, error) {
 			&i.Price,
 			&i.OgPrice,
 			&i.Discount,
+			&i.Rating,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDiscountsDiscount = `-- name: GetDiscountsDiscount :many
+SELECT title, url AS Href,
+image, category, price, og_price, discount, rating
+FROM discounts
+ORDER BY discount DESC
+`
+
+type GetDiscountsDiscountRow struct {
+	Title    string
+	Href     string
+	Image    string
+	Category string
+	Price    float64
+	OgPrice  string
+	Discount string
+	Rating   string
+}
+
+func (q *Queries) GetDiscountsDiscount(ctx context.Context) ([]GetDiscountsDiscountRow, error) {
+	rows, err := q.db.QueryContext(ctx, getDiscountsDiscount)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDiscountsDiscountRow
+	for rows.Next() {
+		var i GetDiscountsDiscountRow
+		if err := rows.Scan(
+			&i.Title,
+			&i.Href,
+			&i.Image,
+			&i.Category,
+			&i.Price,
+			&i.OgPrice,
+			&i.Discount,
+			&i.Rating,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDiscountsPrice = `-- name: GetDiscountsPrice :many
+SELECT title, url AS Href,
+image, category, price, og_price, discount, rating
+FROM discounts
+ORDER BY price
+`
+
+type GetDiscountsPriceRow struct {
+	Title    string
+	Href     string
+	Image    string
+	Category string
+	Price    float64
+	OgPrice  string
+	Discount string
+	Rating   string
+}
+
+func (q *Queries) GetDiscountsPrice(ctx context.Context) ([]GetDiscountsPriceRow, error) {
+	rows, err := q.db.QueryContext(ctx, getDiscountsPrice)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDiscountsPriceRow
+	for rows.Next() {
+		var i GetDiscountsPriceRow
+		if err := rows.Scan(
+			&i.Title,
+			&i.Href,
+			&i.Image,
+			&i.Category,
+			&i.Price,
+			&i.OgPrice,
+			&i.Discount,
+			&i.Rating,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getDiscountsTitle = `-- name: GetDiscountsTitle :many
+SELECT title, url AS Href,
+image, category, price, og_price, discount, rating
+FROM discounts
+ORDER BY title
+`
+
+type GetDiscountsTitleRow struct {
+	Title    string
+	Href     string
+	Image    string
+	Category string
+	Price    float64
+	OgPrice  string
+	Discount string
+	Rating   string
+}
+
+func (q *Queries) GetDiscountsTitle(ctx context.Context) ([]GetDiscountsTitleRow, error) {
+	rows, err := q.db.QueryContext(ctx, getDiscountsTitle)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDiscountsTitleRow
+	for rows.Next() {
+		var i GetDiscountsTitleRow
+		if err := rows.Scan(
+			&i.Title,
+			&i.Href,
+			&i.Image,
+			&i.Category,
+			&i.Price,
+			&i.OgPrice,
+			&i.Discount,
+			&i.Rating,
 		); err != nil {
 			return nil, err
 		}

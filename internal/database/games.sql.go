@@ -50,6 +50,32 @@ func (q *Queries) AddGame(ctx context.Context, arg AddGameParams) (Game, error) 
 	return i, err
 }
 
+const getEpicGame = `-- name: GetEpicGame :one
+SELECT title, url AS Href,
+image, category
+FROM games
+WHERE category = 'Epic'
+`
+
+type GetEpicGameRow struct {
+	Title    string
+	Href     string
+	Image    string
+	Category string
+}
+
+func (q *Queries) GetEpicGame(ctx context.Context) (GetEpicGameRow, error) {
+	row := q.db.QueryRowContext(ctx, getEpicGame)
+	var i GetEpicGameRow
+	err := row.Scan(
+		&i.Title,
+		&i.Href,
+		&i.Image,
+		&i.Category,
+	)
+	return i, err
+}
+
 const getGames = `-- name: GetGames :many
 SELECT title, url AS Href,
 image, category

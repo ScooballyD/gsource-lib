@@ -18,9 +18,10 @@ type Discount struct {
 	Url       string
 	Image     string
 	Category  string
-	Price     string
+	Price     float64
 	OgPrice   string
 	Discount  string
+	Rating    string
 }
 
 type Game struct {

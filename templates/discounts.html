@@ -20,6 +20,51 @@
             border-radius: 8px;
             text-align: center;
         }
+        .filter-button {
+            background-color: #36ada7;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            font-weight: bold;
+            border: 0px;
+            border-radius: 8px;
+            border-top-left-radius: 0px;
+            border-top-right-radius: 0px;
+            cursor: pointer;
+            position: relative;
+            justify-content: flex-start;
+        }
+        .filter-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .filter-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #36ada7;
+            right:6px;
+            border-radius: 12px;
+            box-shadow: 0px 8px 16px 0px #36ada7;
+            z-index: 1;
+        }
+        .filter-dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            display: block;
+        }
+        .filter-dropdown-content a:hover {
+            background-color: #36ada7;
+        }
+        .filter-dropdown:hover .filter-dropdown-content {
+            display: block;
+            background-color: #a13dc9;
+        }
+        .filter-dropdown:hover .filter-button {
+            background-color: #a13dc9;
+        }
         .banner-button {
             display: inline-block;
             padding: 10px 20px;
@@ -51,6 +96,7 @@
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
             padding: 20px;
+            grid-auto-rows: 1fr;
         }
         .game-card {
             background-color: #333333;
@@ -58,15 +104,28 @@
             border-radius: 8px;
             padding: 10px;
             text-align: center;
+            /* Added */
+            display: flex;
+            flex-direction: column;
+            min-height: 90%;
+            position: relative;
         }
         .game-card:hover {
             border: 2px solid #a13dc9;
+        }
+        .game-content {
+            /* Added */
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
         .game-card img {
             max-width: 100%;
             height: auto;
             border-radius: 4px;
             border: 2px solid #36ada7;
+            position: relative;
         }
         .game-card:hover img {
             border: 2px solid #a13dc9;
@@ -77,13 +136,15 @@
         }
         .game-title {
             margin-top: 10px;
+            margin-bottom: -10px;
             font-weight: bold;
         }
         .price-container {
             display: flex;
             justify-content: flex-start;
-            margin-top: 10px;
-            position: relative;
+            margin-top: auto; /* Added */
+            position: absolute;
+            bottom: 1;
         }
         .discount-card {
             background-color: #36ada7;
@@ -91,6 +152,7 @@
             border-radius: 5px;
             border-top-right-radius: 10px;
             border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 1px;
             padding: 5px;
             text-align: center;
             margin-right: -3px;
@@ -99,6 +161,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+        .game-card:hover .discount-card {
+            background-color: #a13dc9;
         }
         .discount-title {
             margin-top: 2px;
@@ -123,28 +188,80 @@
         .price-title {
             margin-top: 2px;
             margin-left: 6px;
+            font-weight: lighter;
+        }
+        .rating-container {
+            display: flex;
+            justify-content: flex-end;
+            /*margin-top: auto;  Added */
+            align-items: flex-end;
+            position: relative;
+            margin-right: -5px;
+            bottom: 30px;
+            margin-bottom: -30px;
+        }
+        .rating-card {
+            background-color: #36ada7;
+            border: 0px solid #36ada7;
+            border-radius: 5px;
+            border-top-right-radius: 1px;
+            border-bottom-left-radius: 10px;
+            border-top-left-radius: 10px;
+
+            padding: 5px;
+            text-align: center;
+            margin-right: 5px;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .game-card:hover .rating-card {
+            background-color: #a13dc9;
+        }
+        .rating-title {
+            margin-top: 2px;
             font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="banner">
-        <a href="http://localhost:8080/discounts">
-            <div class="banner-button">Discounts</div>
+        <div class="filter-dropdown">
+            <button class="filter-button">Filters</button>
+            <div class="filter-dropdown-content">
+                <a href="http://localhost:8080/discounts?sort=discount">Discount</a>
+                <a href="http://localhost:8080/discounts?sort=price">Price</a>
+                <a href="http://localhost:8080/discounts?sort=title">Title</a>
+            </div>
+        </div>
+        <a href="http://localhost:8080">
+            <div class="banner-button">Home</div>
+        </a>
+        <a href="http://localhost:8080/free">
+            <div class="banner-button">Free</div>
         </a>
     </div>
     <div class="games-grid">
         {{range .}}
         <div class="game-card">
             <a href="{{.Href}}">
-                <img src="{{.Image}}" alt="{{.Title}}">
-                <div class="game-title">{{.Title}}</div>
-                <div class="price-container">
-                    <div class="discount-card">
-                        <div class="discount-title">{{.Discount}}</div>
-                    </div>
-                    <div class="price-card">
-                        <div class="price-title">{{.Price}}</div>
+                <div class="game-content">
+                    <img src="{{.Image}}" alt="{{.Title}}">
+                        <div class="rating-container">
+                            <div class="rating-card">
+                                <div class="rating-title">{{.Rating}}</div>
+                            </div>
+                        </div>
+                    <div class="game-title">{{.Title}}</div>
+                    <div class="price-container">
+                        <div class="discount-card">
+                            <div class="discount-title">{{.Discount}}</div>
+                        </div>
+                        <div class="price-card">
+                            <div class="price-title">${{.Price}}</div>
+                        </div>
                     </div>
                 </div>
             </a>

@@ -16,5 +16,11 @@ SELECT title, url AS Href,
 image, category
 FROM games;
 
+-- name: GetEpicGame :one
+SELECT title, url AS Href,
+image, category
+FROM games
+WHERE category = 'Epic';
+
 -- name: ResetGames :exec
 DELETE FROM games;

@@ -8,6 +8,7 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
+// This struct is used for all free and discounted game scrapers
 type Game struct {
 	Title    string `json:"title"`
 	Href     string `json:"href"`
@@ -16,9 +17,10 @@ type Game struct {
 	Discount string `json:"discount"`
 	OGprice  string `json:"og_price"`
 	Price    string `json:"price"`
+	Rating   string `json:"rating"`
 }
 
-func AmzScrape(db *database.Queries) error {
+func AmzScrape(db *database.Queries) ([]Game, error) {
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("no-sandbox", true),
@@ -29,7 +31,7 @@ func AmzScrape(db *database.Queries) error {
 	defer cancel()
 	ctx, cancel := chromedp.NewContext(allocCtx)
 	defer cancel()
-	ctx, cancel = context.WithTimeout(ctx, 30*time.Second)
+	ctx, cancel = context.WithTimeout(ctx, 30*time.Second) //timeout can be extended if needed, however it should be fine
 	defer cancel()
 
 	var games []Game
@@ -42,29 +44,13 @@ func AmzScrape(db *database.Queries) error {
                 .map(a => ({
                     href: "https://gaming.amazon.com" + a.getAttribute('href'),
 					title: a.querySelector('img.tw-image').getAttribute('alt'),
-					image: a.querySelector('img.tw-image').getAttribute('srcset').split(',')[0].trim().replace(' 1x', '')
-
+					image: a.querySelector('img.tw-image').getAttribute('srcset').split(',')[0].trim().replace(' 1x', ''),
+					category: "Prime"
                 }))
 		`, &games),
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	for _, game := range games {
-		_, err = db.AddGame(
-			context.Background(),
-			database.AddGameParams{
-				Title:    game.Title,
-				Url:      game.Href,
-				Image:    game.Image,
-				Category: "(prime)",
-			},
-		)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return games, nil
 }
