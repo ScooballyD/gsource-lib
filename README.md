@@ -28,4 +28,5 @@ Install
 Clone the repository and install it as an editable package:
 
 	git clone https://github.com/ScooballyD/gsource-lib
-	run gsource-lib or 'go run .' from clones dir
+	cd gsource-lib
+ 	go run .
