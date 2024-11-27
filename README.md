@@ -17,10 +17,11 @@ If no modifications are desired then just run gsource-lib
 Dependencies
 ------------
 
--[chromedp](https://github.com/chromedp/chromedp)
--[godotenv](github.com/joho/godotenv)
--[pq](github.com/lib/pq)
--[brotli](github.com/andybalholm/brotli)
+-[goose](https://github.com/pressly/goose)
+-[postgresql](https://www.postgresql.org)
+
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+	apt install postgresql
 
 
 Install
@@ -28,5 +29,8 @@ Install
 Clone the repository and install it as an editable package:
 
 	git clone https://github.com/ScooballyD/gsource-lib
-	cd gsource-lib
+	cd gsource-lib/sql/schema
+ 	goose postgres postgres://postgres:@localhost:5432/archive up
+  	goose postgres postgres://postgres:@localhost:5432/archive up
+   	cd ../..
  	go run .
